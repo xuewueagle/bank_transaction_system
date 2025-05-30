@@ -1,0 +1,136 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.test.dao.BankTransactionDao">
+    <!--使用resultMap作为查询语句的返回对象，column表示表的列名，property表示实体类的属性名-->
+    <resultMap id="bankTransactionInfoMap" type="BankTransactionListDTO">
+        <result column="id" property="id"/>
+        <result column="serial_number" property="serialNumber"/>
+        <result column="account_number" property="accountNumber"/>
+        <result column="amount" property="amount"/>
+        <result column="type" property="type"/>
+        <result column="description" property="description"/>
+        <result column="timestamp" property="timestamp"/>
+        <result column="category" property="category" />
+        <result column="status" property="status"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+    <!--插入单条记录sql-->
+    <insert id="addBankTransaction" parameterType="BankTransactionEntity">
+        INSERT INTO `bank_transaction` (`id`,`serial_number`, `account_number`, `amount`, `type`, `description`, `timestamp`, `category`, `status`, `created_at`, `updated_at`)
+        VALUES
+            (null, #{serialNumber}, #{accountNumber}, #{amount}, #{type}, #{description}, now(), #{category}, #{status}, now(), now())
+    </insert>
+
+    <!--分页查询所用交易记录-->
+    <select id="selectBankTransactionListByPage" resultMap="bankTransactionInfoMap">
+            select * from bank_transaction
+    </select>
+
+    <!--根据流水号查询交易记录-->
+    <select id="selectBankTransactionBySerialNumber" parameterType="java.lang.String" resultMap="bankTransactionInfoMap">
+        select id from bank_transaction where serial_number = #{serialNumber}
+    </select>
+
+    <!--根据主键id查询交易记录-->
+    <select id="selectBankTransactionById" parameterType="java.lang.Long" resultMap="bankTransactionInfoMap">
+        select id from bank_transaction where id = #{id}
+    </select>
+
+    <!--动态更新一条记录 -->
+    <!--trim 标签中的prefix表示前缀，suffixOverrides表示可能重复的后缀-->
+    <update id="updateBankTransactionById" parameterType="BankTransactionListDTO">
+        update bank_transaction
+        <trim prefix="set" suffixOverrides=",">
+            <if test="serialNumber!=null">
+                serial_number = #{serialNumber},
+            </if>
+            <if test="accountNumber!=null">
+                account_number = #{accountNumber},
+            </if>
+            <if test="amount!=null">
+                amount = #{amount},
+            </if>
+            <if test="type!=null">
+                type = #{type},
+            </if>
+            <if test="description!=null">
+                description = #{description},
+            </if>
+            <if test="timestamp!=null">
+                timestamp = #{timestamp},
+            </if>
+            <if test="timestamp!=null">
+                timestamp = #{timestamp},
+            </if>
+            <if test="category!=null">
+                category = #{category},
+            </if>
+            <if test="status!=null">
+                status = #{status},
+            </if>
+            updated_at = now()
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteBankTransactionById" parameterType="java.lang.Long">
+        delete from bank_transaction where id = #{id}
+    </delete>
+
+
+    <!--批量插入多条记录-->
+<!--    <insert id="batchAddProduct" parameterType="java.util.List">-->
+<!--        insert into product_info(-->
+<!--        prod_code, prod_name,-->
+<!--        prod_big_type, prod_small_type,-->
+<!--        created_by, last_updated_by)-->
+<!--        <foreach collection="list" item="item" separator="union">-->
+<!--            select #{item.prodCode},#{item.prodName},-->
+<!--            #{item.prodBigType},#{item.prodSmallType},-->
+<!--            #{item.createdBy},#{item.lastUpdatedBy}-->
+<!--            from dual-->
+<!--        </foreach>-->
+<!--    </insert>-->
+
+
+    <!--可多次引用的sql片段-->
+<!--    <sql id="selectProdInfo">-->
+<!--        select prod_code,prod_name,-->
+<!--               prod_big_type,prod_small_type,-->
+<!--               created_by,created_time,last_updated_by,last_updated_time-->
+<!--        from product_info-->
+<!--    </sql>-->
+    <!--根据产品码查询单条记录-->
+<!--    <select id="queryByProdCode" parameterType="java.lang.String" resultMap="productInfoMap">-->
+<!--        <include refid="selectProdInfo" />-->
+<!--        where prod_code = #{prodCode}-->
+<!--    </select>-->
+    <!--根据产品名查询单条记录-->
+<!--    <select id="queryByProdName" parameterType="java.lang.String" resultMap="productInfoMap">-->
+<!--        <include refid="selectProdInfo" />-->
+<!--        where prod_name=#{prodName}-->
+<!--    </select>-->
+    <!--根据产品类型查询多条记录-->
+<!--    <select id="queryByProdType" resultMap="productInfoMap">-->
+<!--        <include refid="selectProdInfo" />-->
+<!--        where 1=1-->
+<!--        <if test="bigType!=null">AND prod_big_type= #{bigType}</if>-->
+<!--        <if test="smallType!=null"> AND prod_small_type= #{smallType}</if>-->
+<!--    </select>-->
+    <!--根据一个产品码删除一条记录-->
+<!--    <delete id="deleteProduct" parameterType="java.lang.String">-->
+<!--        delete from product_info-->
+<!--        where prod_code = #{prodCode}-->
+<!--    </delete>-->
+    <!--根据产品码集合删除多条记录-->
+<!--    <delete id="batchDeleteProduct" parameterType="java.util.List">-->
+<!--        delete from product_info-->
+<!--        where prod_code in-->
+<!--        <foreach collection="list" item="item" open="(" separator="," close=")">-->
+<!--            #{item}-->
+<!--        </foreach>-->
+<!--    </delete>-->
+
+</mapper>

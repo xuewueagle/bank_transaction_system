@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bank-transaction-system-deployment
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bank-transaction-system
+  template:
+    metadata:
+      labels:
+        app: bank-transaction-system
+    spec:
+      containers:
+        - name: bank-transaction-system-container
+          image: bank_trasaction_system_image_x86_jdk21:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8088
+          resources:  # 添加资源限制
+            requests:
+              memory: "512Mi"
+              cpu: "1"
+            limits:
+              memory: "4Gi"
+              cpu: "2"
