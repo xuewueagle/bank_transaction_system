@@ -67,7 +67,7 @@ public class BankTransactionController {
      * @return 修改成功标记
      */
     @PutMapping("/bankTransaction")
-    public CommonResult<Integer> updateBankTransactionInfo(@RequestBody BankTransactionDTO bankTransaction){
+    public CommonResult<Integer> updateBankTransactionInfo(@Valid @RequestBody BankTransactionDTO bankTransaction){
         CommonResult<Integer> commonResult = new CommonResult<>();
         commonResult.setData(bankTransactionService.updateBankTransactionById(bankTransaction));
 

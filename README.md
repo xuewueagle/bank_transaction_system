@@ -72,9 +72,9 @@ CREATE TABLE `bank_transaction` (
 
 ## 六、单元测试
 ### 1、测试结果
-![img_1.png](img_1.png)
+![img_34.png](img_34.png)
 ### 2、测试覆盖率
-![img_2.png](img_2.png)
+![img_35.png](img_35.png)
 
 ## 七、打包部署至K8S集群
 ### 1、应用打包

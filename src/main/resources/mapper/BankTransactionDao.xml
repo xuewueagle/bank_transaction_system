@@ -17,7 +17,7 @@
         <result column="updated_at" property="updatedAt"/>
     </resultMap>
     <!--插入单条记录sql-->
-    <insert id="addBankTransaction" parameterType="BankTransactionEntity">
+    <insert id="addBankTransaction" parameterType="BankTransactionEntity" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
         INSERT INTO `bank_transaction` (`id`,`serial_number`, `account_number`, `amount`, `type`, `description`, `timestamp`, `category`, `status`, `created_at`, `updated_at`)
         VALUES
             (null, #{serialNumber}, #{accountNumber}, #{amount}, #{type}, #{description}, now(), #{category}, #{status}, now(), now())
