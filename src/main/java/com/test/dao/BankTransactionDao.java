@@ -31,4 +31,6 @@ public interface BankTransactionDao {
     // 根据主键id查交易数据
     BankTransactionListDTO selectBankTransactionById(Long id);
 
+    // 查询交易信息总记录数
+    int selectBankTransactionCount();
 }

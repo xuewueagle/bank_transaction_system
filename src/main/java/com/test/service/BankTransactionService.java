@@ -2,6 +2,7 @@ package com.test.service;
 
 import com.test.domain.BankTransactionDTO;
 import com.test.domain.BankTransactionListDTO;
+import com.test.domain.BankTransactionListVO;
 import java.util.List;
 
 /**
@@ -22,10 +23,10 @@ public interface BankTransactionService {
     // 分页查询交易信息
     List<BankTransactionListDTO> selectBankTransactionListByPage(int pageNum, int pageSize);
 
-    // 根据唯一流水号查交易数据
-    BankTransactionListDTO selectBankTransactionBySerialNumber(String serialNumber);
+    // 查询交易信息总记录数
+    int selectBankTransactionCount();
 
-    // 根据主键id查交易数据
-    BankTransactionListDTO selectBankTransactionById(Long id);
+    // DTO转VO
+    List<BankTransactionListVO> bankTransactionDto2Vo(List<BankTransactionListDTO> bankTransactionListData);
 
 }

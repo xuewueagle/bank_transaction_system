@@ -67,7 +67,7 @@ CREATE TABLE `bank_transaction` (
 
 - 分页查询交易信息接口
 
-![img_32.png](img_32.png)
+![img_33.png](img_33.png)
 
 
 ## 六、单元测试
