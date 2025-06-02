@@ -53,48 +53,25 @@ CREATE TABLE `bank_transaction` (
   
 ![img_28.png](./image/img_28.png)
 
-## 五、接口功能测试
-- 新增交易信息接口
 
-![img_29.png](./image/img_29.png)
-
-- 更新交易信息接口
-
-![img_30.png](./image/img_30.png)
-
-- 删除交易信息接口
-
-![img_31.png](./image/img_31.png)
-
-- 分页查询交易信息接口
-
-![img_33.png](./image/img_33.png)
-
-
-## 六、单元测试
-### 1、测试结果
-![img_34.png](./image/img_34.png)
-### 2、测试覆盖率
-![img_35.png](./image/img_35.png)
-
-## 七、打包部署至K8S集群
+## 五、打包部署至K8S集群
 ### 1、应用打包
 - 首先检查application-dev.properties文件中的MySQL配置信息，改成K8S集群中能访问的MySQL地址，MySQL信息如下图：
 
 ![imgs.png](./image/imgs.png)
 
-- 然后检查该MySQL中是否已创建表bank_transaction，不存在的话需要创建下,确保表存在
+- 然后检查该MySQL中是否已创建表bank_transaction，不存在的话需要使用上面第四节定义的表结构创建下,确保表存在
 
 - 然后切到项目根目录下执行`mvn clean package -X` 命令对应用进行打包，执行完命令后可以看到target目录下生成了一个bank_transaction_system-0.0.1-SNAPSHOT.jar包, 如下图：
 
 ![target_img.png](./image/target_img.png)
 
-### 2、将jar包和项目根目录下的Dockerfile、k8s_deployment.yaml和k8s_service.yaml 一起上传至k8s所在master节点/data/deploy/目录下
+### 2、将打出的应用jar包和当前项目根目录下的Dockerfile、k8s_deployment.yaml和k8s_service.yaml 一起上传至k8s所在master节点/data/deploy/目录下， 文件详细内容如下：
 ```shell
 
 # Dockerfile
-FROM openjdk:21-ea-9
-ARG JAR_FILE=/data/deploy/*.jar # 注意jar存放的位置，在k8s在master节点上构建镜像前检查jar包位置
+FROM openjdk:21
+ARG JAR_FILE=/data/deploy/*.jar # 注意在k8s的master节点上构建镜像前检查下jar包路径是否正确
 COPY ${JAR_FILE} bank_transaction_system.jar
 
 ENV LOG_DIR=/data/logs
@@ -112,19 +89,19 @@ metadata:
   name: bank-transaction-system-deployment
   namespace: default
 spec:
-  replicas: 1
+  replicas: 1 # 这里测试使用1个副本
   selector:
     matchLabels:
-      app: bank-transaction-system
+      app: bank-transaction-system-app
   template:
     metadata:
       labels:
-        app: bank-transaction-system
+        app: bank-transaction-system-app
     spec:
       containers:
         - name: bank-transaction-system-container
-          image: bank_trasaction_system_image_x86_jdk21:latest
-          imagePullPolicy: Never # 使用本地镜像，不走远程docker仓库拉取镜像
+          image: bank_trasaction_system_image_x86_jdk21:latest # 使用docker构建镜像时指定的镜像名
+          imagePullPolicy: Never # 这里为了简单测试，使用本地镜像，不走远程docker仓库拉取镜像
           ports:
             - containerPort: 8088
           resources:  # 添加资源限制
@@ -154,7 +131,7 @@ spec:
 ```
 
 ### 3、构建镜像
-k8s所在master节点的/data/deploy/目录下执行以下命令
+在k8s所在master节点的/data/deploy/目录下执行以下命令
 ```shell
 
 docker build -t bank_trasaction_system_image_x86_jdk21:latest .
@@ -170,10 +147,38 @@ kubectl apply -f k8s_service.yaml
 ![img.png](./image/img.png)
 
 ### 6、测试应用服务是否启动成功
+- pod内部测试
 
+![pod_test_img.png](./image/pod_test_img.png)
+
+- 外部测试
 ![api_img.png](./image/api_img.png)
 
 > 接口访问ok 
+
+## 六、接口功能测试
+- 新增交易信息接口
+
+![img_29.png](./image/img_29.png)
+
+- 更新交易信息接口
+
+![img_30.png](./image/img_30.png)
+
+- 删除交易信息接口
+
+![img_31.png](./image/img_31.png)
+
+- 分页查询交易信息接口
+
+![img_33.png](./image/img_33.png)
+
+
+## 七、单元测试
+### 1、测试结果
+![img_34.png](./image/img_34.png)
+### 2、测试覆盖率
+![img_35.png](./image/img_35.png)
 
 ## 八、接口压测
 > 主要对查询接口进行性能测试

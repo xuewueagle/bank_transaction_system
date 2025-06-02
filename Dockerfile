@@ -1,4 +1,4 @@
-FROM openjdk:21-ea-9
+FROM openjdk:21
 ARG JAR_FILE=target/*.jar
 COPY ${JAR_FILE} bank_transaction_system.jar
 
