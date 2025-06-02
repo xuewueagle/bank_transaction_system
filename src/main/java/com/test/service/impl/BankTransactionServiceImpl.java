@@ -12,7 +12,9 @@ import com.test.service.BankTransactionService;
 import com.test.util.constant.CommonConstants;
 import com.test.util.exception.TransactionNotFoundException;
 import com.test.util.exception.TransactionRepeatSubmitException;
+import jakarta.annotation.PostConstruct;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -21,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
@@ -32,16 +35,30 @@ import org.springframework.stereotype.Service;
 public class BankTransactionServiceImpl implements BankTransactionService {
 
     private static final Logger logger = LoggerFactory.getLogger(BankTransactionServiceImpl.class);
-    // 设置写缓存
-    private static final Cache<String, Object> writeCache = Caffeine.newBuilder()
-            .maximumSize(500)
-            .expireAfterWrite(5, TimeUnit.SECONDS)
-            .build();
-    // 设置查询缓存
-    private static final Cache<String, Object> readCache = Caffeine.newBuilder()
-            .maximumSize(2000)
-            .expireAfterWrite(10, TimeUnit.MINUTES)
-            .build();
+
+    // 读取本地缓存配置信息
+    @Value("${local.cache.writeCacheMaximumSize}")
+    private long nonStaticWriteCacheMaximumSize;
+    @Value("${local.cache.writeCacheExpireTime}")
+    private long  nonStaticWriteCacheExpireTime;
+    @Value("${local.cache.readCacheMaximumSize}")
+    private long nonStaticReadCacheMaximumSize;
+    @Value("${local.cache.readCacheExpireTime}")
+    private long  nonStaticReadCacheExpireTime;
+
+    // 定义写缓存变量
+    private static Cache<String, Object> writeCache;
+    // 定义读缓存变量
+    private static Cache<String, Object> readCache;
+
+    @PostConstruct
+    private void init(){
+        // 配置读写缓存参数
+        writeCache = Caffeine.newBuilder()
+                .maximumSize(nonStaticWriteCacheMaximumSize).expireAfterWrite(nonStaticWriteCacheExpireTime, TimeUnit.SECONDS).build();
+        readCache = Caffeine.newBuilder()
+                .maximumSize(nonStaticReadCacheMaximumSize).expireAfterWrite(nonStaticReadCacheExpireTime, TimeUnit.MINUTES).build();
+    }
 
     @Autowired
     private BankTransactionDao bankTransactionDao;
@@ -92,7 +109,7 @@ public class BankTransactionServiceImpl implements BankTransactionService {
     @Override
     public int deleteBankTransactionById(Long id) {
 
-        // 检查当前交易记录是否已删除 --- 这里使用本地缓存+查DB进行双重校验
+        // 检查当前交易记录是否已删除，不存在的数据无法再进行删除 --- 这里使用本地缓存+查DB进行双重校验
         if(existWriteCache(CommonConstants.DELETE_OPERATE + id)){
             throw new TransactionNotFoundException(CommonConstants.DELETE_DATA_ERROR);
         }
@@ -120,7 +137,7 @@ public class BankTransactionServiceImpl implements BankTransactionService {
         List<BankTransactionListDTO> cacheBankTransactionLists = queryLocalQueryCache(
                 CommonConstants.SELECT_OPERATE + pageNum + "_" + pageSize);
         if(ObjectUtil.isNotNull(cacheBankTransactionLists)){
-
+            logger.info(CommonConstants.GET_QUERY_CACHE_DATA);
             return cacheBankTransactionLists;
         }
 
@@ -194,7 +211,7 @@ public class BankTransactionServiceImpl implements BankTransactionService {
      */
     public  List<BankTransactionListVO> bankTransactionDto2Vo(List<BankTransactionListDTO> bankTransactionListData){
         if(ObjectUtil.isNull(bankTransactionListData)){
-            return null;
+            return Collections.emptyList();
         }
         List<BankTransactionListVO> bankTransactionList = new ArrayList<>();
         BankTransactionListVO bankTransactionListVO;

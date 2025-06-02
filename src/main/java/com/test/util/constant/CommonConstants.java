@@ -17,6 +17,7 @@ public class CommonConstants {
     public static final String DELETE_QUERY_CACHE_AFTER_UPDATE = "修改交易数据之后删除查询缓存～";
     public static final String DELETE_QUERY_CACHE_AFTER_ADD = "添加交易数据之后删除查询缓存～";
     public static final String ADD_QUERY_CACHE_AFTER_ADD = "新增交易数据成功加入本地写缓存～";
+    public static final String GET_QUERY_CACHE_DATA = "从缓存中获取了数据～";
 
     private CommonConstants(){}
 }
