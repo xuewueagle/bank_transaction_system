@@ -24,6 +24,8 @@ bank_transaction_system
 | Hutool               | Java工具类库      | https://github.com/looly/hutool               |
 | PageHelper           | MyBatis物理分页插件 | http://git.oschina.net/free/Mybatis_PageHelper |
 | Hibernator-Validator | 验证框架          | http://hibernate.org/validator                |
+| maven3.6.3 | 构建工具          | https://maven.apache.org/download.cgi                |
+
 
 ## 四、表结构与接口设计
 - 表结构
@@ -53,14 +55,28 @@ CREATE TABLE `bank_transaction` (
   
 ![img_28.png](./image/img_28.png)
 
+- 本地启动运行步骤
+  + 1、提前准备好可用的MySQL（要求能够在本地访问正常）
+  + 2、在该MySQL中创建数据库test_db(执行脚本如下)，并在该库下创建数据表bank_transaction（使用上面第四节定义的表结构执行创建）
+    ```sql
+        create database test_db;
+    ```
+  + 3、修改代码中application-dev.properties文件中的MySQL配置信息为该MySQL的信息
+![imgs.png](./image/imgs.png)
+
+  + 4、启动BankTransactionSystemApplication
 
 ## 五、打包部署至K8S集群
 ### 1、应用打包
-- 首先检查application-dev.properties文件中的MySQL配置信息，改成K8S集群中能访问的MySQL地址，MySQL信息如下图：
+- 首先检查修改application-dev.properties文件中的MySQL配置信息，改成K8S集群中能访问的MySQL地址，MySQL信息如下图：
 
 ![imgs.png](./image/imgs.png)
 
-- 然后检查该MySQL中是否已创建表bank_transaction，不存在的话需要使用上面第四节定义的表结构创建下,确保表存在
+- 然后在该MySQL中检查创建test_db数据库
+  ```sql
+      create database test_db;
+  ```
+- 然后在test_db数据库下检查创建bank_transaction表（不存在的话，使用上面第四节定义的表结构执行创建），确保库表都存在；
 
 - 然后切到项目根目录下执行`mvn clean package -X` 命令对应用进行打包，执行完命令后可以看到target目录下生成了一个bank_transaction_system-0.0.1-SNAPSHOT.jar包, 如下图：
 
